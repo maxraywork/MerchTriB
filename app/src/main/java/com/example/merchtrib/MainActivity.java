@@ -6,13 +6,19 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.merchtrib.ui.activities.HistoryActivity;
@@ -34,7 +40,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
@@ -42,10 +51,33 @@ public class MainActivity extends AppCompatActivity {
     private Drawer result = null;
     private AccountHeader headerResult = null;
 
+    private static final List<Cat> cats = new ArrayList<Cat>();
+
+    static {
+        cats.add(new Cat("Васька", "котэ"));
+        cats.add(new Cat("Мурзик", "котяра"));
+        cats.add(new Cat("Мурка", "кошка"));
+        cats.add(new Cat("Барсик", "котик"));
+        cats.add(new Cat("Лиза", "кошечка"));
+        cats.add(new Cat("Лиза", "кошечка"));
+        cats.add(new Cat("Лиза", "кошечка"));
+        cats.add(new Cat("Лиза", "кошечка"));
+        cats.add(new Cat("Лиза", "кошечка"));
+        cats.add(new Cat("Лиза", "кошечка"));
+        cats.add(new Cat("Лиза", "кошечка"));
+        cats.add(new Cat("Лиза", "кошечка"));
+        cats.add(new Cat("Лиза", "кошечка"));
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        ArrayAdapter<Cat> adapter = new CatAdapter(this);
+        ListView lv = (ListView) findViewById(R.id.list_of_tasks);
+        lv.setAdapter(adapter);
 
         SimpleDateFormat formatter = new SimpleDateFormat("EEEE dd.MM", Locale.getDefault());
         String date = formatter.format(new Date());
@@ -80,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
                         new PrimaryDrawerItem().withName(R.string.menu_send_today).withIcon(R.drawable.ic_nav_send_today).withIdentifier(1).withSelectable(false),
                         new PrimaryDrawerItem().withName(R.string.menu_history).withIcon(R.drawable.ic_nav_history).withIdentifier(2).withSelectable(false),
                         new SectionDrawerItem().withName(R.string.nav_section_out),
-                        new SecondaryDrawerItem().withName(R.string.nav_write_to_creator).withIcon(R.drawable.ic_nav_write_to_creator).withIdentifier(3)
+                        new SecondaryDrawerItem().withName(R.string.nav_write_to_creator).withIcon(R.drawable.ic_nav_write_to_creator).withIdentifier(3).withSelectable(false)
                 )
                 .withOnDrawerListener(new Drawer.OnDrawerListener() {
                     @Override
@@ -108,6 +140,10 @@ public class MainActivity extends AppCompatActivity {
                                 intent = new Intent(MainActivity.this, SendTodayActivity.class);
                             } else if (drawerItem.getIdentifier() == 2) {
                                 intent = new Intent(MainActivity.this, HistoryActivity.class);
+                            } else if (drawerItem.getIdentifier() == 3) {
+                                Intent browserIntent = new
+                                        Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/Max_Luchik"));
+                                startActivity(browserIntent);
                             }
                             if (intent != null) {
                                 MainActivity.this.startActivity(intent);
@@ -120,6 +156,39 @@ public class MainActivity extends AppCompatActivity {
                 })
                 .build();
 
+
+    }
+
+    private static class Cat {
+        public final String name;
+        public final String gender;
+
+        public Cat(String name, String gender) {
+            this.name = name;
+            this.gender = gender;
+        }
+    }
+
+    private class CatAdapter extends ArrayAdapter<Cat> {
+
+        public CatAdapter(Context context) {
+            super(context, R.layout.main_task_list_item, cats);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            Cat cat = getItem(position);
+
+            if (convertView == null) {
+                convertView = LayoutInflater.from(getContext())
+                        .inflate(R.layout.main_task_list_item, null);
+            }
+            ((TextView) convertView.findViewById(R.id.list_item_name))
+                    .setText(cat.name);
+            ((TextView) convertView.findViewById(R.id.list_item_link))
+                    .setText(cat.gender);
+            return convertView;
+        }
     }
 
     @Override

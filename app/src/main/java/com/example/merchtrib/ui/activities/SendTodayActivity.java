@@ -27,27 +27,27 @@ public class SendTodayActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.main_task_list_item);
+        setContentView(R.layout.activity_send_today);
 
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        if (toolbar != null) {
-//            toolbar.setTitle(R.string.menu_send_today);
-//            setSupportActionBar(toolbar);
-//        }
-//
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-//        getSupportActionBar().setHomeButtonEnabled(false);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        if (toolbar != null) {
+            toolbar.setTitle(R.string.menu_send_today);
+            setSupportActionBar(toolbar);
+        }
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(false);
     }
 
-//    @Override
-//    protected void onSaveInstanceState(Bundle outState) {
-//
-//        super.onSaveInstanceState(outState);
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        super.onBackPressed();
-//        return true;
-//    }
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        super.onBackPressed();
+        return true;
+    }
 }
