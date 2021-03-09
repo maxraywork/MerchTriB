@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="Primary">#0245A3</color>
+    <color name="PrimaryDark">#06224A</color>
+    <color name="PrimaryLight">#8FBAF3</color>
+    <color name="Secondary">#BDF1F6</color>
+    <color name="SecondaryVariant">#92F2FB</color>
+    <color name="Error">#FF1744</color>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+</resources>
