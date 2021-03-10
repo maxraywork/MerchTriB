@@ -15,12 +15,14 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.merchtrib.ui.activities.CheckGeoActivity;
 import com.example.merchtrib.ui.activities.HistoryActivity;
 import com.example.merchtrib.ui.activities.SendTodayActivity;
 import com.google.android.material.snackbar.Snackbar;
@@ -50,23 +52,23 @@ public class MainActivity extends AppCompatActivity {
 
     private Drawer result = null;
     private AccountHeader headerResult = null;
+    Intent intent = null;
 
     private static final List<Cat> cats = new ArrayList<Cat>();
 
     static {
-        cats.add(new Cat("Васька", "котэ"));
-        cats.add(new Cat("Мурзик", "котяра"));
-        cats.add(new Cat("Мурка", "кошка"));
-        cats.add(new Cat("Барсик", "котик"));
-        cats.add(new Cat("Лиза", "кошечка"));
-        cats.add(new Cat("Лиза", "кошечка"));
-        cats.add(new Cat("Лиза", "кошечка"));
-        cats.add(new Cat("Лиза", "кошечка"));
-        cats.add(new Cat("Лиза", "кошечка"));
-        cats.add(new Cat("Лиза", "кошечка"));
-        cats.add(new Cat("Лиза", "кошечка"));
-        cats.add(new Cat("Лиза", "кошечка"));
-        cats.add(new Cat("Лиза", "кошечка"));
+        cats.add(new Cat("ООО “Фермер”", "Калининград, Горького,76, 2"));
+        cats.add(new Cat("ООО “Виктория”", "Калининград, Южный, 2"));
+        cats.add(new Cat("“Причал”", "Калининград, Горького,43, 2"));
+        cats.add(new Cat("ООО “Макро”", "Калининград, Зеленая, 15, 64"));
+        cats.add(new Cat("АОУ “Овощи”", "Калининград, Горького,76, 2"));
+        cats.add(new Cat("“Маляева”", "Гусев, Улица 2"));
+        cats.add(new Cat("ООО “Балтимол”", "кошечка"));
+        cats.add(new Cat("АОУ “Овощи”", "Калининград, Горького,76, 2"));
+        cats.add(new Cat("“Причал”", "Калининград, Горького,43, 2"));
+        cats.add(new Cat("ООО “Фермер”", "Калининград, Горького,76, 2"));
+        cats.add(new Cat("ООО “Балтимол”", "кошечка"));
+        cats.add(new Cat("ООО “Макро”", "Калининград, Зеленая, 15, 64"));
     }
 
 
@@ -78,6 +80,15 @@ public class MainActivity extends AppCompatActivity {
         ArrayAdapter<Cat> adapter = new CatAdapter(this);
         ListView lv = (ListView) findViewById(R.id.list_of_tasks);
         lv.setAdapter(adapter);
+
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+                intent = new Intent(MainActivity.this, CheckGeoActivity.class);
+                MainActivity.this.startActivity(intent);
+            }
+        });
+
 
         SimpleDateFormat formatter = new SimpleDateFormat("EEEE dd.MM", Locale.getDefault());
         String date = formatter.format(new Date());
@@ -94,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
                 .withTranslucentStatusBar(true)
                 .withCompactStyle(true)
                 .addProfiles(
-                        new ProfileDrawerItem().withName("Mike Penz").withEmail("mikepenz@gmail.com").withIcon(R.drawable.ic_launcher_background))
+                        new ProfileDrawerItem().withName("Илья Погулер").withEmail("ilyapoGuler39@mail.ru").withIcon(R.drawable.ic_launcher_background))
                 .withSavedInstance(savedInstanceState)
                 .build();
 
@@ -134,7 +145,6 @@ public class MainActivity extends AppCompatActivity {
 
                     @Override
                     public boolean onItemClick(@Nullable View view, int i, @NotNull IDrawerItem<?> drawerItem) {
-                        Intent intent = null;
                         if (drawerItem != null) {
                             if (drawerItem.getIdentifier() == 1) {
                                 intent = new Intent(MainActivity.this, SendTodayActivity.class);
@@ -189,6 +199,7 @@ public class MainActivity extends AppCompatActivity {
                     .setText(cat.gender);
             return convertView;
         }
+
     }
 
     @Override

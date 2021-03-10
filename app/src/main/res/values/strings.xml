@@ -15,4 +15,7 @@
 
     <string name="menu_main">Главная</string>
     <string name="list_item_link">Калининград Горького</string>
+    <string name="check_geo">Проверяю местоположение...</string>
+    <string name="check_geo_second_title">Будь там, где есть сигнал из космоса!</string>
+    <string name="wait">Подожди...</string>
 </resources>
