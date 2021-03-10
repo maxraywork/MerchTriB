@@ -1,11 +1,6 @@
 <resources>
     <string name="app_name">MerchTriBrata</string>
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-    <string name="nav_header_title">Android Studio</string>
-    <string name="nav_header_subtitle">android.studio@android.com</string>
-    <string name="nav_header_desc">Navigation header</string>
-    <string name="action_settings">Settings</string>
+
 
     <string name="menu_home">Дата</string>
     <string name="menu_send_today">Отправленные</string>
@@ -15,7 +10,7 @@
 
     <string name="menu_main">Главная</string>
     <string name="list_item_link">Калининград Горького</string>
-    <string name="check_geo">Проверяю местоположение...</string>
+    <string name="check_geo">Проверяю местоположение…</string>
     <string name="check_geo_second_title">Будь там, где есть сигнал из космоса!</string>
-    <string name="wait">Подожди...</string>
+    <string name="wait">Подожди…</string>
 </resources>

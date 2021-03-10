@@ -1,5 +1,6 @@
 package com.example.merchtrib;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
@@ -25,6 +26,7 @@ import android.widget.Toast;
 import com.example.merchtrib.ui.activities.CheckGeoActivity;
 import com.example.merchtrib.ui.activities.HistoryActivity;
 import com.example.merchtrib.ui.activities.SendTodayActivity;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
@@ -50,8 +52,6 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Drawer result = null;
-    private AccountHeader headerResult = null;
     Intent intent = null;
 
     private static final List<Cat> cats = new ArrayList<Cat>();
@@ -77,6 +77,29 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setSelectedItemId(R.id.main);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()){
+                    case R.id.send_today:
+                       startActivity(new Intent(getApplicationContext(), SendTodayActivity.class));
+                       overridePendingTransition(0,0);
+                        finish();
+                       return true;
+                    case R.id.main:
+                        return true;
+                    case R.id.history:
+                        startActivity(new Intent(getApplicationContext(), HistoryActivity.class));
+                        overridePendingTransition(0,0);
+                        finish();
+                        return true;
+                }
+                return false;
+            }
+        });
+
         ArrayAdapter<Cat> adapter = new CatAdapter(this);
         ListView lv = (ListView) findViewById(R.id.list_of_tasks);
         lv.setAdapter(adapter);
@@ -99,73 +122,6 @@ public class MainActivity extends AppCompatActivity {
             toolbar.setTitle(date);
             setSupportActionBar(toolbar);
         }
-
-        headerResult = new AccountHeaderBuilder()
-                .withActivity(this)
-                .withTranslucentStatusBar(true)
-                .withCompactStyle(true)
-                .addProfiles(
-                        new ProfileDrawerItem().withName("Илья Погулер").withEmail("ilyapoGuler39@mail.ru").withIcon(R.drawable.ic_launcher_background))
-                .withSavedInstance(savedInstanceState)
-                .build();
-
-        result = new DrawerBuilder()
-                .withActivity(this)
-                .withToolbar(toolbar)
-                .withActionBarDrawerToggle(true)
-                .withDisplayBelowStatusBar(true)
-                .withTranslucentStatusBar(true)
-                .withSavedInstance(savedInstanceState)
-                .withHasStableIds(true)
-                .withAccountHeader(headerResult)
-                .addDrawerItems(
-                        new PrimaryDrawerItem().withName(R.string.menu_main).withIcon(R.drawable.ic_menu_home).withIdentifier(0),
-                        new PrimaryDrawerItem().withName(R.string.menu_send_today).withIcon(R.drawable.ic_nav_send_today).withIdentifier(1).withSelectable(false),
-                        new PrimaryDrawerItem().withName(R.string.menu_history).withIcon(R.drawable.ic_nav_history).withIdentifier(2).withSelectable(false),
-                        new SectionDrawerItem().withName(R.string.nav_section_out),
-                        new SecondaryDrawerItem().withName(R.string.nav_write_to_creator).withIcon(R.drawable.ic_nav_write_to_creator).withIdentifier(3).withSelectable(false)
-                )
-                .withOnDrawerListener(new Drawer.OnDrawerListener() {
-                    @Override
-                    public void onDrawerOpened(@NotNull View view) {
-
-                    }
-
-                    @Override
-                    public void onDrawerSlide(@NotNull View view, float v) {
-
-                    }
-
-                    @Override
-                    public void onDrawerClosed(@NotNull View view) {
-
-                    }
-                })
-                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-
-                    @Override
-                    public boolean onItemClick(@Nullable View view, int i, @NotNull IDrawerItem<?> drawerItem) {
-                        if (drawerItem != null) {
-                            if (drawerItem.getIdentifier() == 1) {
-                                intent = new Intent(MainActivity.this, SendTodayActivity.class);
-                            } else if (drawerItem.getIdentifier() == 2) {
-                                intent = new Intent(MainActivity.this, HistoryActivity.class);
-                            } else if (drawerItem.getIdentifier() == 3) {
-                                Intent browserIntent = new
-                                        Intent(Intent.ACTION_VIEW, Uri.parse("https://t.me/Max_Luchik"));
-                                startActivity(browserIntent);
-                            }
-                            if (intent != null) {
-                                MainActivity.this.startActivity(intent);
-                            }
-                        }
-
-                        return false;
-                    }
-
-                })
-                .build();
-
 
     }
 
@@ -204,20 +160,13 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        //add the values which need to be saved from the drawer to the bundle
-        outState = result.saveInstanceState(outState);
         super.onSaveInstanceState(outState);
     }
 
 
     @Override
     public void onBackPressed() {
-        // Закрываем Navigation Drawer по нажатию системной кнопки "Назад" если он открыт
-        if (result.isDrawerOpen()) {
-            result.closeDrawer();
-        } else {
             super.onBackPressed();
-        }
     }
 
     // Заглушка, работа с меню
