@@ -10,6 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MerchTriB">
         <activity android:name=".ui.activities.TaskActivity"/>
+        <activity android:name=".ui.activities.CheckGeoActivity" />
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

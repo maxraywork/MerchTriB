@@ -76,8 +76,8 @@ public class MainFragment extends Fragment {
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-                intent = new Intent(getActivity(), CheckGeoActivity.class);
-                MainFragment.this.startActivity(intent);
+                Intent intent = new Intent(getActivity(), CheckGeoActivity.class);
+                startActivity(intent);
 
             }
         });
