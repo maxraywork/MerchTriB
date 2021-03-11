@@ -13,4 +13,5 @@
     <string name="check_geo">Проверяю местоположение…</string>
     <string name="check_geo_second_title">Будь там, где есть сигнал из космоса!</string>
     <string name="wait">Подожди…</string>
+
 </resources>

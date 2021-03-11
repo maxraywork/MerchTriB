@@ -9,10 +9,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.MerchTriB">
-        <activity android:name=".ui.activities.TaskActivity"></activity>
-        <activity android:name=".ui.activities.CheckGeoActivity" />
-        <activity android:name=".ui.activities.HistoryActivity" />
-        <activity android:name=".ui.activities.SendTodayActivity" />
+        <activity android:name=".ui.activities.TaskActivity"/>
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
