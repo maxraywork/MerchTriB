@@ -11,7 +11,11 @@
     <string name="menu_main">Главная</string>
     <string name="list_item_link">Калининград Горького</string>
     <string name="check_geo">Проверяю местоположение…</string>
-    <string name="check_geo_second_title">Будь там, где есть сигнал из космоса!</string>
+    <string name="check_geo_second_title">Будь там, где ловит GPS!</string>
     <string name="wait">Подожди…</string>
+    <string name="error_title">Кажется,
+        что-то не так с интернетом</string>
+    <string name="error_text">Почини, пожалуйста и нажми на кнопку</string>
+    <string name="error_btn_text">Повторить попытку</string>
 
 </resources>

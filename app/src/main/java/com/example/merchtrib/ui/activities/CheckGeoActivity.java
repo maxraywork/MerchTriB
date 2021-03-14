@@ -1,5 +1,7 @@
 package com.example.merchtrib.ui.activities;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -8,7 +10,14 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.example.merchtrib.R;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class CheckGeoActivity extends AppCompatActivity {
+
+
+    private static int SPLASH_TIME_OUT = 3000;
+    Timer t = new Timer();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +31,26 @@ public class CheckGeoActivity extends AppCompatActivity {
             setSupportActionBar(toolbar);
         }
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(false);
+
+
+        t.scheduleAtFixedRate(new TimerTask() {
+            @Override
+            public void run() {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        t.cancel();
+
+                        Intent intent = new Intent(getApplicationContext(), TaskActivity.class);
+                        startActivity(intent);
+                        finish();
+                    }
+                });
+            }
+        }, SPLASH_TIME_OUT, SPLASH_TIME_OUT);
+
     }
 
     @Override
@@ -29,4 +58,16 @@ public class CheckGeoActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        super.onBackPressed();
+        t.cancel();
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        t.cancel();
+    }
 }
