@@ -18,4 +18,13 @@
     <string name="error_text">Почини, пожалуйста и нажми на кнопку</string>
     <string name="error_btn_text">Повторить попытку</string>
 
+
+    <string-array name="LoginArray">
+        <item>Лебедев Александр</item>
+        <item>Лучихин Максим</item>
+        <item>Леонтив Валерий</item>
+        <item>Алексеев Максим</item>
+        <item>Магамедов Илья</item>
+    </string-array>
+
 </resources>

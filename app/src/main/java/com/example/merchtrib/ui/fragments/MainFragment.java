@@ -3,12 +3,6 @@ package com.example.merchtrib.ui.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -21,9 +15,20 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.merchtrib.MainActivity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+
 import com.example.merchtrib.R;
 import com.example.merchtrib.ui.activities.CheckGeoActivity;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,9 +36,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import static com.mikepenz.iconics.Iconics.getApplicationContext;
-
 public class MainFragment extends Fragment {
+
+    GoogleMap map;
+    private SupportMapFragment mapFragment;
 
     Intent intent = null;
     private static final List<Cat> cats = new ArrayList<Cat>();
@@ -42,14 +48,6 @@ public class MainFragment extends Fragment {
         cats.add(new Cat("ООО “Фермер”", "Калининград, Горького,76, 2"));
         cats.add(new Cat("ООО “Виктория”", "Калининград, Южный, 2"));
         cats.add(new Cat("“Причал”", "Калининград, Горького,43, 2"));
-        cats.add(new Cat("ООО “Макро”", "Калининград, Зеленая, 15, 64"));
-        cats.add(new Cat("АОУ “Овощи”", "Калининград, Горького,76, 2"));
-        cats.add(new Cat("“Маляева”", "Гусев, Улица 2"));
-        cats.add(new Cat("ООО “Балтимол”", "кошечка"));
-        cats.add(new Cat("АОУ “Овощи”", "Калининград, Горького,76, 2"));
-        cats.add(new Cat("“Причал”", "Калининград, Горького,43, 2"));
-        cats.add(new Cat("ООО “Фермер”", "Калининград, Горького,76, 2"));
-        cats.add(new Cat("ООО “Балтимол”", "кошечка"));
         cats.add(new Cat("ООО “Макро”", "Калининград, Зеленая, 15, 64"));
     }
 
@@ -82,7 +80,9 @@ public class MainFragment extends Fragment {
             }
         });
 
+
         return v;
+
     }
 
 
@@ -127,9 +127,11 @@ public class MainFragment extends Fragment {
         public View getView(int position, View convertView, ViewGroup parent) {
             MainFragment.Cat cat = getItem(position);
 
+
             if (convertView == null) {
                 convertView = LayoutInflater.from(getContext())
                         .inflate(R.layout.main_task_list_item, null);
+
             }
             ((TextView) convertView.findViewById(R.id.list_item_name))
                     .setText(cat.name);
@@ -139,6 +141,7 @@ public class MainFragment extends Fragment {
         }
 
     }
+
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
