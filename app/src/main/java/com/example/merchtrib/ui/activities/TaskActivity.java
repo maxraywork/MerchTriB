@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -44,7 +45,8 @@ public class TaskActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         if (id == R.id.menu_task_comment) {
-            Toast.makeText(getApplicationContext(), "Добавить примечание", Toast.LENGTH_SHORT).show();
+           // Toast.makeText(getApplicationContext(), "Добавить примечание", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, SendingActivity.class));
         }
 
         return super.onOptionsItemSelected(item);

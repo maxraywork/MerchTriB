@@ -46,6 +46,7 @@ public class CheckGeoActivity extends AppCompatActivity {
                         Intent intent = new Intent(getApplicationContext(), TaskActivity.class);
                         startActivity(intent);
                         finish();
+
                     }
                 });
             }

@@ -17,6 +17,8 @@
         что-то не так с интернетом</string>
     <string name="error_text">Почини, пожалуйста и нажми на кнопку</string>
     <string name="error_btn_text">Повторить попытку</string>
+    <string name="sending_task__title">Всё собираю и отправляю...</string>
+    <string name="sending_task_second_title">Мне нужен интернет, чем он лучше, тем быстрее я все сделаю)</string>
 
 
     <string-array name="LoginArray">
