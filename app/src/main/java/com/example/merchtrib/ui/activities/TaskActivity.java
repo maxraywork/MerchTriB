@@ -1,38 +1,43 @@
 package com.example.merchtrib.ui.activities;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.content.ClipData;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.merchtrib.R;
-import com.google.android.gms.maps.internal.IMapFragmentDelegate;
+import com.example.merchtrib.ui.adapters.GalleryAdapter;
 import com.gun0912.tedpermission.PermissionListener;
 import com.gun0912.tedpermission.TedPermission;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.zip.Inflater;
-
-import gun0912.tedbottompicker.TedBottomPicker;
-import gun0912.tedbottompicker.TedBottomSheetDialogFragment;
 
 public class TaskActivity extends AppCompatActivity {
 
     private ConstraintLayout constraintLayout;
-    private RecyclerView rcvPhoto;
-    private ImageAdapter imageAdapter;
+    private RecyclerView gvGallery;
+    private GalleryAdapter galleryAdapter;
+
+
+    int PICK_IMAGE_MULTIPLE = 1;
+    String imageEncoded;
+    List<String> imagesEncodedList;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,11 +51,9 @@ public class TaskActivity extends AppCompatActivity {
             setSupportActionBar(toolbar);
         }
 
-        rcvPhoto = findViewById(R.id.rev_photo);
-        imageAdapter = new ImageAdapter(this);
+        gvGallery = findViewById(R.id.rev_photo);
         constraintLayout = findViewById(R.id.add_photo);
 
-        rcvPhoto.setAdapter(imageAdapter);
 
         constraintLayout.setOnClickListener(new View.OnClickListener() {
 
@@ -84,19 +87,86 @@ public class TaskActivity extends AppCompatActivity {
     }
 
     private void selectImagesFromGallery() {
-        TedBottomPicker.with(TaskActivity.this)
-                .setPeekHeight(1600)
-                .showTitle(false)
-                .setCompleteButtonText("Done")
-                .setEmptySelectionText("No Select")
-                .showMultiImage(new TedBottomSheetDialogFragment.OnMultiImageSelectedListener() {
-                    @Override
-                    public void onImagesSelected(List<Uri> uriList) {
-                       if (uriList != null && !uriList.isEmpty()){
-                           imageAdapter.setData(uriList);
-                       }
+        try {
+
+        Intent intent = new Intent();
+        intent.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+            startActivityForResult(Intent.createChooser(intent,"Выбери фотографии"), PICK_IMAGE_MULTIPLE);
+        }
+        catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        try {
+            // When an Image is picked
+            if (requestCode == PICK_IMAGE_MULTIPLE && resultCode == RESULT_OK
+                    && null != data) {
+                // Get the Image from data
+
+                String[] filePathColumn = { MediaStore.Images.Media.DATA };
+                imagesEncodedList = new ArrayList<String>();
+                if(data.getData()!=null){
+
+                    Uri mImageUri=data.getData();
+
+                    // Get the cursor
+                    Cursor cursor = getContentResolver().query(mImageUri,
+                            filePathColumn, null, null, null);
+                    // Move to first row
+                    cursor.moveToFirst();
+
+                    int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                    imageEncoded  = cursor.getString(columnIndex);
+                    cursor.close();
+
+                    ArrayList<Uri> mArrayUri = new ArrayList<Uri>();
+                    mArrayUri.add(mImageUri);
+                    galleryAdapter = new GalleryAdapter(getApplicationContext() ,mArrayUri);
+                    gvGallery.setAdapter(galleryAdapter);
+                    ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) gvGallery
+                            .getLayoutParams();
+
+
+                } else {
+                    if (data.getClipData() != null) {
+                        ClipData mClipData = data.getClipData();
+                        ArrayList<Uri> mArrayUri = new ArrayList<Uri>();
+                        for (int i = 0; i < mClipData.getItemCount(); i++) {
+
+                            ClipData.Item item = mClipData.getItemAt(i);
+                            Uri uri = item.getUri();
+                            mArrayUri.add(uri);
+                            // Get the cursor
+                            Cursor cursor = getContentResolver().query(uri, filePathColumn, null, null, null);
+                            // Move to first row
+                            cursor.moveToFirst();
+
+                            int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+                            imageEncoded  = cursor.getString(columnIndex);
+                            imagesEncodedList.add(imageEncoded);
+                            cursor.close();
+
+                            galleryAdapter = new GalleryAdapter(getApplicationContext() ,mArrayUri);
+                            gvGallery.setAdapter(galleryAdapter);
+                            ViewGroup.MarginLayoutParams mlp = (ViewGroup.MarginLayoutParams) gvGallery
+                                    .getLayoutParams();
+                        }
+
                     }
-                });
+                }
+            } else {
+                Toast.makeText(this, "You haven't picked Image",
+                        Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception e) {
+            Toast.makeText(this, "Something went wrong", Toast.LENGTH_LONG)
+                    .show();
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
 

@@ -20,6 +20,7 @@
     <string name="sending_task__title">Всё собираю и отправляю...</string>
     <string name="sending_task_second_title">Мне нужен интернет, чем он лучше, тем быстрее я все сделаю)</string>
     <string name="Description_add_image">add_image</string>
+    <string name="image_description">Описание фото</string>
 
 
     <string-array name="LoginArray">

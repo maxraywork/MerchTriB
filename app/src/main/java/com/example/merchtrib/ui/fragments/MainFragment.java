@@ -2,6 +2,7 @@ package com.example.merchtrib.ui.fragments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -11,6 +12,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -57,7 +60,7 @@ public class MainFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_main, container, false);
 
-        ArrayAdapter<MainFragment.Cat> adapter = new MainFragment.CatAdapter(getContext());
+        ArrayAdapter<MainFragment.Cat> adapter = new CatAdapter(getContext());
         ListView lv = (ListView) v.findViewById(R.id.list_of_tasks);
         lv.setAdapter(adapter);
 
@@ -133,10 +136,21 @@ public class MainFragment extends Fragment {
                         .inflate(R.layout.main_task_list_item, null);
 
             }
+            ImageButton imageButton = convertView.findViewById(R.id.task_item_button);
+            imageButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Uri uri = Uri.parse("https://goo.gl/maps/KH3ySujVXzdRizYv6");
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(intent);
+                }
+            });
             ((TextView) convertView.findViewById(R.id.list_item_name))
                     .setText(cat.name);
             ((TextView) convertView.findViewById(R.id.list_item_link))
                     .setText(cat.gender);
+
+
             return convertView;
         }
 

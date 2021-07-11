@@ -8,6 +8,7 @@ import android.view.MenuItem;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.merchtrib.MainActivity;
 import com.example.merchtrib.R;
 
 import java.util.Timer;
@@ -45,6 +46,7 @@ public class CheckGeoActivity extends AppCompatActivity {
 
                         Intent intent = new Intent(getApplicationContext(), TaskActivity.class);
                         startActivity(intent);
+                        MainActivity.BackActivity.finish();
                         finish();
 
                     }

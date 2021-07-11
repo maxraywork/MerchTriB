@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -26,6 +27,7 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
+    public static Activity BackActivity;
 
     Fragment frag_main = new MainFragment();
     Fragment frag_send_today = new SendTodayFragment();
@@ -36,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        BackActivity = this;
         if (getSupportFragmentManager().findFragmentById(R.id.fragment_container_main) == null) {
             // start new Activity
         loadFragment(frag_main);

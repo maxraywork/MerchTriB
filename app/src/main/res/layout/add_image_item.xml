@@ -4,8 +4,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:clickable="true"
-    android:focusable="true"
-    android:paddingEnd="25dp">
+    android:focusable="true">
 
     <com.makeramen.roundedimageview.RoundedImageView
         android:id="@+id/photo"
@@ -14,9 +13,9 @@
         android:src="#00FFFF00"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:riv_border_color="@color/white"
-        app:riv_border_width="2dp"
-        app:riv_corner_radius="20dp"
+        app:riv_border_color="@color/md_grey_400"
+        app:riv_border_width="@dimen/image_item_border_width"
+        app:riv_corner_radius="@dimen/image_item_corner_radius"
         app:riv_mutate_background="false"
         app:riv_tile_mode="repeat" />
 

@@ -1,4 +1,4 @@
-package com.example.merchtrib.ui.activities;
+package com.example.merchtrib.ui.adapters;
 
 public class TaskItemAdapter {
 
@@ -16,4 +16,6 @@ public class TaskItemAdapter {
     public void setFlagResource(int flagResource) {
         this.flagResource = flagResource;
     }
+
+    
 }
