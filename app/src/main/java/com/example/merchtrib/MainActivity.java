@@ -45,22 +45,19 @@ public class MainActivity extends AppCompatActivity {
         }
         BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setSelectedItemId(R.id.main);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.send_today:
-                        loadFragment(frag_send_today);
-                        return true;
-                    case R.id.main:
-                        loadFragment(frag_main);
-                        return true;
-                    case R.id.history:
-                        loadFragment(frag_history);
-                        return true;
-                }
-                return false;
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.send_today:
+                    loadFragment(frag_send_today);
+                    return true;
+                case R.id.main:
+                    loadFragment(frag_main);
+                    return true;
+                case R.id.history:
+                    loadFragment(frag_history);
+                    return true;
             }
+            return false;
         });
 
 

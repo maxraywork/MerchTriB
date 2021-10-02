@@ -24,11 +24,7 @@ public class ErrorActivity extends AppCompatActivity {
             setSupportActionBar(toolbar);
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.Error, this.getTheme()));
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().setStatusBarColor(getResources().getColor(R.color.Error));
-        }
+        getWindow().setStatusBarColor(getResources().getColor(R.color.Error, this.getTheme()));
     }
 
     public String getEmojiByUnicode(int cry_smile){
