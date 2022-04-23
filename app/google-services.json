@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "197992142075",
+    "firebase_url": "https://merchtrib-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "merchtrib",
+    "storage_bucket": "merchtrib.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:197992142075:android:ae576b2f4e8937c1100c5e",
+        "android_client_info": {
+          "package_name": "com.example.merchtrib"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "197992142075-elqk4uqprshmu6j21u65unbvhu52s69e.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBukZuCBdn1dWgSPzGc0vJnqHntrUABRsY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "197992142075-elqk4uqprshmu6j21u65unbvhu52s69e.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

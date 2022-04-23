@@ -2,6 +2,7 @@ package com.example.merchtrib.ui.adapters;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.merchtrib.R;
 import com.makeramen.roundedimageview.RoundedImageView;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.logging.Level;
@@ -19,8 +21,6 @@ import java.util.logging.Logger;
 public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.PhotoViewHolder> {
 
     private Context ctx;
-    private int pos;
-    private LayoutInflater inflater;
     private RoundedImageView ivGallery;
     ArrayList<Uri> mArrayUri;
 
@@ -33,25 +33,20 @@ public class GalleryAdapter extends RecyclerView.Adapter<GalleryAdapter.PhotoVie
     @NonNull
     @Override
     public PhotoViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = inflater.from(parent.getContext()).inflate(R.layout.image_task_item, parent, false);
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.image_task_item, parent, false);
         return new PhotoViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(@NonNull GalleryAdapter.PhotoViewHolder holder, int position) {
-        pos = position;
-        inflater = (LayoutInflater) ctx
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-
-        ivGallery.setImageURI(mArrayUri.get(position));
-
+//            ivGallery.setImageURI(Uri.parse(mArrayUri.get(position)));
+        Picasso.get().load(mArrayUri.get(position)).error(R.drawable.img_error).into(ivGallery);
     }
 
 
 
     @Override
     public int getItemCount() {
-        Logger.getLogger("com.dataart.demo.java.logging.SomeClass").log(Level.INFO, String.valueOf(mArrayUri.size()));
         return mArrayUri.size();
     }
 

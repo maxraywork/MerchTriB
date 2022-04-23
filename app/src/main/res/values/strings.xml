@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MerchTriBrata</string>
+    <string name="app_name">Мерчандазер</string>
 
 
     <string name="menu_home">Дата</string>
@@ -30,5 +30,7 @@
         <item>Алексеев Максим</item>
         <item>Магамедов Илья</item>
     </string-array>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

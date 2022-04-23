@@ -2,19 +2,21 @@ package com.example.merchtrib.ui.fragments;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,37 +24,44 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.merchtrib.R;
-import com.example.merchtrib.ui.activities.CheckGeoActivity;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.OnMapReadyCallback;
+import com.example.merchtrib.ui.activities.AddTaskActivity;
+import com.example.merchtrib.ui.activities.LoginActivity;
+import com.example.merchtrib.ui.activities.MainActivity;
+import com.example.merchtrib.ui.activities.TaskActivity;
+import com.example.merchtrib.ui.adapters.TasksAdapter;
+import com.example.merchtrib.ui.objects.Task;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class MainFragment extends Fragment {
 
-    GoogleMap map;
-    private SupportMapFragment mapFragment;
+    public ArrayList<Task> TASKS = new ArrayList<>();
+    private DatabaseReference mDatabase;
+    SharedPreferences sharedPreferences;
+    String userEmail, companyName, companyNameOriginal;
+    boolean isAdmin;
+    private FirebaseUser user;
+    RecyclerView lv;
 
-    Intent intent = null;
-    private static final List<Cat> cats = new ArrayList<Cat>();
-
-    static {
-        cats.add(new Cat("ООО “Фермер”", "Калининград, Горького,76, 2"));
-        cats.add(new Cat("ООО “Виктория”", "Калининград, Южный, 2"));
-        cats.add(new Cat("“Причал”", "Калининград, Горького,43, 2"));
-        cats.add(new Cat("ООО “Макро”", "Калининград, Зеленая, 15, 64"));
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -60,9 +69,53 @@ public class MainFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_main, container, false);
 
-        ArrayAdapter<MainFragment.Cat> adapter = new CatAdapter(getContext());
-        ListView lv = (ListView) v.findViewById(R.id.list_of_tasks);
-        lv.setAdapter(adapter);
+//        user = FirebaseAuth.getInstance().getCurrentUser();
+        sharedPreferences = getActivity().getSharedPreferences("data", Context.MODE_PRIVATE);
+        userEmail = sharedPreferences.getString("userEmailShort", "");
+        companyName = sharedPreferences.getString("companyName", "");
+        isAdmin = sharedPreferences.getBoolean("isAdmin", false);
+        companyNameOriginal = sharedPreferences.getString("companyNameOriginal", null);
+
+        lv = v.findViewById(R.id.list_of_tasks);
+        LinearLayoutManager llm = new LinearLayoutManager(this.getContext());
+        llm.setOrientation(LinearLayoutManager.VERTICAL);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(lv.getContext(),
+                llm.getOrientation());
+        lv.addItemDecoration(dividerItemDecoration);
+        lv.setLayoutManager(llm);
+
+        TextView emptyText = v.findViewById(R.id.emptyText);
+
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        ProgressBar progressBar = v.findViewById(R.id.progress_circular);
+        mDatabase.child("companies/" + companyName + "/tasks/current").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                TASKS = new ArrayList<>();
+                // Get Post object and use the values to update the UI
+                for (DataSnapshot dataTask: dataSnapshot.getChildren()) {
+                     TASKS.add(dataTask.getValue(Task.class));
+
+                }
+                lv.setAdapter(new TasksAdapter(getContext() , TASKS, "current", isAdmin, companyName));
+                progressBar.setVisibility(View.INVISIBLE);
+                if (!TASKS.isEmpty()) {
+                    emptyText.setVisibility(View.INVISIBLE);
+                } else {
+                    emptyText.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+                Toast.makeText(getContext(), databaseError.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        });
+        lv.setAdapter(new TasksAdapter(getContext() , TASKS, "current",  isAdmin, companyName));
+
+
 
         SimpleDateFormat formatter = new SimpleDateFormat("EEEE dd.MM", Locale.getDefault());
         String date = formatter.format(new Date());
@@ -70,19 +123,15 @@ public class MainFragment extends Fragment {
         setHasOptionsMenu(true);
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         if (toolbar != null) {
-            toolbar.setTitle(date);
-            activity.setSupportActionBar(toolbar);
-        }
-
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                Intent intent = new Intent(getActivity(), CheckGeoActivity.class);
-                startActivity(intent);
-
+            if (isAdmin && companyNameOriginal != null) {
+                toolbar.setTitle(companyNameOriginal);
+            } else {
+                toolbar.setTitle(date);
             }
-        });
-
+            if (activity != null) {
+                activity.setSupportActionBar(toolbar);
+            }
+        }
 
         return v;
 
@@ -101,60 +150,18 @@ public class MainFragment extends Fragment {
         int id = item.getItemId();
 
         if (id == R.id.menu_main_add) {
-            Toast.makeText(getContext(), "Добавить точку", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this.getActivity(), AddTaskActivity.class));
         } else if (id == R.id.menu_main_logOut) {
-            Toast.makeText(getContext(), "Выйти", Toast.LENGTH_SHORT).show();
+            FirebaseAuth.getInstance().signOut();
+            sharedPreferences.getAll().clear();
+            startActivity(new Intent(getActivity(), MainActivity.class));
+            Objects.requireNonNull(getActivity()).finish();
         }
 
         return super.onOptionsItemSelected(item);
     }
 
 
-    private static class Cat {
-        public final String name;
-        public final String gender;
-
-        public Cat(String name, String gender) {
-            this.name = name;
-            this.gender = gender;
-        }
-    }
-
-    private class CatAdapter extends ArrayAdapter<MainFragment.Cat> {
-
-        public CatAdapter(Context context) {
-            super(context, R.layout.main_task_list_item, cats);
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            MainFragment.Cat cat = getItem(position);
-
-
-            if (convertView == null) {
-                convertView = LayoutInflater.from(getContext())
-                        .inflate(R.layout.main_task_list_item, null);
-
-            }
-            ImageButton imageButton = convertView.findViewById(R.id.task_item_button);
-            imageButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Uri uri = Uri.parse("https://goo.gl/maps/KH3ySujVXzdRizYv6");
-                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
-                    startActivity(intent);
-                }
-            });
-            ((TextView) convertView.findViewById(R.id.list_item_name))
-                    .setText(cat.name);
-            ((TextView) convertView.findViewById(R.id.list_item_link))
-                    .setText(cat.gender);
-
-
-            return convertView;
-        }
-
-    }
 
 
     @Override

@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/main"
+        android:id="@+id/tasks"
         android:icon="@drawable/ic_baseline_assignment_24"
-        android:title="Главная" />
+        android:title="Задания" />
     <item
-        android:id="@+id/send_today"
+        android:id="@+id/tasks_old"
         android:icon="@drawable/ic_baseline_history_24"
         android:title="Отправленные" />
+    <item
+        android:id="@+id/users"
+        android:icon="@drawable/ic_baseline_assignment_ind_24"
+        android:title="Люди" />
 <!--    <item-->
 <!--        android:id="@+id/history"-->
 <!--        android:icon="@drawable/ic_nav_history"-->

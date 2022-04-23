@@ -13,14 +13,33 @@
         android:layout_height="wrap_content"
         android:layout_width="match_parent"
         />
-    <ListView
+    <ProgressBar
+        android:id="@+id/progress_circular"
+        style="@style/Widget.AppCompat.ProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:indeterminateTint="@color/primary"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Нет заданий"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:id="@+id/emptyText"
+        android:visibility="invisible"
+        />
+
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list_of_tasks"
+
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@id/toolbar"
         android:layout_alignParentStart="true"
         android:transcriptMode="alwaysScroll">
-    </ListView>
+    </androidx.recyclerview.widget.RecyclerView>
 
 
 </RelativeLayout>

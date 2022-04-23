@@ -1,6 +1,5 @@
 package com.example.merchtrib.ui.activities;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
@@ -8,7 +7,6 @@ import android.view.MenuItem;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.example.merchtrib.MainActivity;
 import com.example.merchtrib.R;
 
 import java.util.Timer;
