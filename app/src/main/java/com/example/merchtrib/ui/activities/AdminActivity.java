@@ -51,11 +51,7 @@ public class AdminActivity extends AppCompatActivity {
         });
 
 
-
-
-
     }
-
 
 
     public void loadFragment(Fragment fragment) {

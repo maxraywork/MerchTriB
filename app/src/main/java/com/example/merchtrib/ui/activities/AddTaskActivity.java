@@ -51,6 +51,7 @@ public class AddTaskActivity extends AppCompatActivity {
 
 
     public void addButtonClickHandler(View view) {
+        // Обрабатываем нажатие на кнопку
         String nameFinal = name.getText().toString();
         String id = nameFinal + System.currentTimeMillis();
         String addressFinal = address.getText().toString();

@@ -35,7 +35,7 @@ Button submit;
 
         }
 
-
+        //Зарегистрировать компанию
         submit.setOnClickListener(v -> {
             submit.setClickable(false);
             String data = name.getText().toString();

@@ -42,19 +42,23 @@ public class LoginActivity extends AppCompatActivity {
         password = findViewById(R.id.password);
         loginButton = findViewById(R.id.loginButton);
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
-
+// Нажатие на кнопку регистрации
         loginButton.setOnClickListener(v -> {
             if (!email.getText().toString().isEmpty() && !password.getText().toString().isEmpty()) {
+                // если поля не пустые
                 if (isValid(email.getText().toString())) {
+                    // Если почта верна
                     if (password.getText().toString().length() >= 6) {
-
+                        //Если пароль больше 6 символов
                         loginButton.setClickable(false);
                         Toast.makeText(getApplicationContext(), "Проверяем...", Toast.LENGTH_SHORT).show();
+                        //Войти
                         mAuth.signInWithEmailAndPassword(email.getText().toString(), password.getText().toString()).addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
                                 startActivity(new Intent(getApplicationContext(), MainActivity.class));
                                 finish();
                             } else {
+                                //Зарегистрировать
                                 mAuth.createUserWithEmailAndPassword(email.getText().toString(), password.getText().toString()).addOnCompleteListener(task2 -> {
                                     if (task2.isSuccessful()) {
                                         FirebaseUser user = mAuth.getCurrentUser();

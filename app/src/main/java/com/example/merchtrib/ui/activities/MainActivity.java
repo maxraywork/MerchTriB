@@ -45,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
         } else {
-
+            // Проверить пользователя
             FirebaseDatabase.getInstance().getReference("users").child(user.getEmail().replace("@", "").replace(".", "").toLowerCase()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -93,9 +93,6 @@ public class MainActivity extends AppCompatActivity {
             });
 
         }
-
-
-
 
 
     }

@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.merchtrib.R;
@@ -53,7 +54,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class TaskActivity extends AppCompatActivity {
+public class TaskActivity extends AppCompatActivity implements GalleryAdapter.OnImageListener {
 
     private RecyclerView gvGallery;
     private GalleryAdapter galleryAdapter;
@@ -62,6 +63,7 @@ public class TaskActivity extends AppCompatActivity {
     public ArrayList<Uri> mArrayUri = new ArrayList<>();
     public ArrayList<String> mArrayUriDone = new ArrayList<>();
     public ArrayList<Uri> mArrayUriAbsolute = new ArrayList<>();
+    public ArrayList<Uri> mArrayLocal = new ArrayList<>();
     int PICK_IMAGE_MULTIPLE = 1;
 
     private StorageReference mStorageRef;
@@ -69,17 +71,23 @@ public class TaskActivity extends AppCompatActivity {
 
     private ProgressBar progressBar;
 
+    GalleryAdapter.OnImageListener context;
+    Context origContext;
+
     String title = "Ошибка",
             idTask = "",
-            type="current",
-    companyName, userEmail;
-
+            type = "current",
+            companyName, userEmail;
+TextView emptyText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task);
+        context = this;
+        origContext = this;
 
+        emptyText = findViewById(R.id.emptyText);
         Intent intent = getIntent();
         title = intent.getStringExtra("name");
         idTask = intent.getStringExtra("id");
@@ -107,11 +115,19 @@ public class TaskActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mArrayUriAbsolute = new ArrayList<>();
                 // Get Post object and use the values to update the UI
-                for (DataSnapshot dataUri: dataSnapshot.getChildren()) {
+                for (DataSnapshot dataUri : dataSnapshot.getChildren()) {
                     mArrayUriAbsolute.add(Uri.parse(dataUri.getValue(String.class)));
                 }
-                gvGallery.setAdapter(new GalleryAdapter(getApplicationContext() , mArrayUriAbsolute));
+                mArrayUri.clear();
+                mArrayUri.addAll(mArrayUriAbsolute);
+                mArrayUri.addAll(mArrayLocal);
+                gvGallery.setAdapter(new GalleryAdapter(origContext, mArrayUri, context));
                 progressBar.setVisibility(View.INVISIBLE);
+                if (mArrayUri.isEmpty()) {
+                emptyText.setVisibility(View.VISIBLE);
+                } else {
+                    emptyText.setVisibility(View.INVISIBLE);
+                }
             }
 
             @Override
@@ -179,17 +195,22 @@ public class TaskActivity extends AppCompatActivity {
             if (data.getClipData() != null) {
                 ClipData mClipData = data.getClipData();
                 int cout = data.getClipData().getItemCount();
-                mArrayUri = (ArrayList<Uri>) mArrayUriAbsolute.clone();
+//                mArrayUri = (ArrayList<Uri>) mArrayUriAbsolute.clone();
                 for (int i = 0; i < cout; i++) {
                     Uri imageurl = data.getClipData().getItemAt(i).getUri();
-                    mArrayUri.add(imageurl);
+                    mArrayLocal.add(imageurl);
                 }
+                mArrayUri.clear();
+                mArrayUri.addAll(mArrayUriAbsolute);
+                mArrayUri.addAll(mArrayLocal);
 
                 addImagesInRecycler(mArrayUri);
 
             } else if (data.getData() != null) {
-                mArrayUri = (ArrayList<Uri>) mArrayUriAbsolute.clone();
-                mArrayUri.add(data.getData());
+                mArrayLocal.add(data.getData());
+                mArrayUri.clear();
+                mArrayUri.addAll(mArrayUriAbsolute);
+                mArrayUri.addAll(mArrayLocal);
                 addImagesInRecycler(mArrayUri);
             } else {
                 Toast.makeText(this, "Вы не выбрали ни одной картинки, ошибка", Toast.LENGTH_LONG).show();
@@ -201,10 +222,27 @@ public class TaskActivity extends AppCompatActivity {
     }
 
     private void addImagesInRecycler(ArrayList<Uri> mArrayUri) {
-        GalleryAdapter galleryAdapter = new GalleryAdapter(this, mArrayUri);
+        GalleryAdapter galleryAdapter = new GalleryAdapter(origContext, mArrayUri, this);
 
         gvGallery.setAdapter(galleryAdapter);
 
+    }
+
+    @Override
+    public void onImageClick(int position) {
+        if (position < mArrayUriAbsolute.size()) {
+            if (mArrayUri.get(position) == mArrayUriAbsolute.get(position)) {
+                mDatabaseRef.child(type).child(idTask).child("images").child(String.valueOf(position)).removeValue();
+            }
+        } else {
+            if (mArrayUri.get(position) == mArrayLocal.get(position - mArrayUriAbsolute.size())) {
+                mArrayLocal.remove(position - mArrayUriAbsolute.size());
+            }
+            mArrayUri.clear();
+            mArrayUri.addAll(mArrayUriAbsolute);
+            mArrayUri.addAll(mArrayLocal);
+            addImagesInRecycler(mArrayUri);
+        }
     }
 
 
@@ -223,15 +261,16 @@ public class TaskActivity extends AppCompatActivity {
         if (id == R.id.menu_task_clear) {
             // Toast.makeText(getApplicationContext(), "Добавить примечание", Toast.LENGTH_SHORT).show();
 //            startActivity(new Intent(this, SendingActivity.class));
-            mArrayUri = new ArrayList<>();
-            for (Uri imageUri: mArrayUriAbsolute) {
+            mArrayUri.clear();
+            mArrayLocal.clear();
+            for (Uri imageUri : mArrayUriAbsolute) {
                 FirebaseStorage.getInstance().getReferenceFromUrl(String.valueOf(imageUri)).delete();
             }
             mArrayUriAbsolute = new ArrayList<>();
             mDatabaseRef.child(type).child(idTask).child("images").removeValue();
             addImagesInRecycler(mArrayUri);
         } else if (id == R.id.menu_task_send) {
-            mArrayUriDone = new ArrayList<>();
+            mArrayUriDone.clear();
             Intent intentSending = new Intent(this, SendingActivity.class);
             startActivity(intentSending);
             for (int i = mArrayUriAbsolute.size(); i < mArrayUri.size(); i++) {
@@ -252,7 +291,6 @@ public class TaskActivity extends AppCompatActivity {
     private void uploadFiles(Uri uri) {
         if (mArrayUri != null) {
             StorageReference fileReference = mStorageRef.child(System.currentTimeMillis() + "." + getFileExtension(uri));
-
 
 
             fileReference.putFile(uri)
