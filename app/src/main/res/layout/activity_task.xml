@@ -6,6 +6,12 @@
     android:layout_height="match_parent"
     tools:context=".ui.activities.TaskActivity">
 
+    <TextView android:id="@+id/emptyText"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
     <include
         android:id="@+id/toolbar"
         layout="@layout/tool_bar"
