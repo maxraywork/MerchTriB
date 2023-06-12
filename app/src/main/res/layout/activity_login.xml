@@ -37,8 +37,7 @@
                 android:hint="E-mail"
                 android:inputType="textEmailAddress"
                 android:singleLine="true"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-          />
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1" />
         </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -51,8 +50,8 @@
             app:passwordToggleEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:layout_width="match_parent"
                 android:id="@+id/password"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginStart="25dp"
@@ -64,15 +63,43 @@
                 android:textColorHighlight="@color/PrimaryLight"
                 android:textColorLink="@color/PrimaryLight" />
         </com.google.android.material.textfield.TextInputLayout>
-        <Button
+
+        <TextView
+            android:id="@+id/resetPassword"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Войти"
-            android:id="@+id/loginButton"
             android:layout_gravity="center_horizontal"
-            android:background="@color/Primary"
-            android:layout_marginTop="50dp"
-            />
+            android:layout_marginTop="10dp"
+            android:text="@string/resetPassword"
+            android:textAlignment="center"
+            android:textColor="@color/PrimaryLight" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/loginButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:background="@color/Primary"
+                android:paddingHorizontal="10dp"
+                android:text="@string/logIn" />
+
+            <Button
+                android:id="@+id/signUpButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginStart="24dp"
+                android:background="@color/Primary"
+                android:paddingHorizontal="10dp"
+                android:text="Регистрация" />
+        </LinearLayout>
     </LinearLayout>
 
 </RelativeLayout>

@@ -40,37 +40,33 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        checkUser();
+
+
+    }
+
+    public void checkUser() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         if (user == null) {
             startActivity(new Intent(this, LoginActivity.class));
             finish();
         } else {
             // Проверить пользователя
-            FirebaseDatabase.getInstance().getReference("users").child(user.getEmail().replace("@", "").replace(".", "").toLowerCase()).addListenerForSingleValueEvent(new ValueEventListener() {
+            FirebaseDatabase.getInstance().getReference("users").child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.getValue(User.class) != null) {
 
                         User userData = dataSnapshot.getValue(User.class);
-                        boolean isCompany = userData.company != null;
-                        if (isCompany) {
-                            SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
-                            preferences.edit().putString("companyName", userData.company).putString("userEmailShort", user.getEmail().replace("@", "").replace(".", "").toLowerCase()).putBoolean("isAdmin", userData.admin).apply();
-                            FirebaseDatabase.getInstance().getReference("companies/" + userData.company + "/name").addListenerForSingleValueEvent(new ValueEventListener() {
-                                @Override
-                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                                    if (dataSnapshot.getValue(String.class) != null) {
-                                        preferences.edit().putString("companyNameOriginal", dataSnapshot.getValue(String.class)).apply();
-                                    }
-                                }
-
-                                @Override
-                                public void onCancelled(@NonNull DatabaseError databaseError) {
-                                    Toast.makeText(getApplicationContext(), "Что-то пошло не так: " + databaseError.getMessage(), Toast.LENGTH_LONG).show();
-                                }
-                            });
+                        boolean isCompany = false;
+                        if (userData != null) {
+                            isCompany = userData.getCompanyID() != null && !userData.getCompanyID().isEmpty();
                         }
-                        if (userData.admin) {
+                        if (isCompany) {
+                            SharedPreferences preferences = getSharedPreferences("user", MODE_PRIVATE);
+                            preferences.edit().putString("companyID", userData.getCompanyID()).putString("userID", user.getUid()).putString("email", user.getEmail()).putBoolean("isAdmin", userData.isAdmin()).apply();
+                        }
+                        if (userData.isAdmin()) {
                             if (isCompany) {
                                 startActivity(new Intent(getApplicationContext(), AdminActivity.class));
                             } else {
@@ -81,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
                             updateUI();
                         }
                     } else {
+                        user.delete();
                         startActivity(new Intent(getApplicationContext(), LoginActivity.class));
                         finish();
                     }
@@ -88,13 +85,11 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                    Toast.makeText(getApplicationContext(), "Что-то пошло не так: " + databaseError.getMessage(), Toast.LENGTH_LONG).show();
+//                    Toast.makeText(getApplicationContext(), "Что-то пошло не так: " + databaseError.getMessage(), Toast.LENGTH_LONG).show();
                 }
             });
 
         }
-
-
     }
 
     private void updateUI() {

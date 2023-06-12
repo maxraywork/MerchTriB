@@ -12,7 +12,10 @@
         android:icon="@mipmap/ic_channel"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/Theme.MerchTriB" >
+        android:theme="@style/Theme.MerchTriB">
+        <activity
+            android:name=".ui.activities.TaskInfoActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.activities.AdminActivity"
             android:exported="false" />
@@ -32,7 +35,7 @@
         <activity android:name=".ui.activities.ErrorActivity" />
         <activity android:name=".ui.activities.TaskActivity" />
         <activity android:name=".ui.activities.CheckGeoActivity" />
-        <activity android:name=".ui.activities.MainActivity" >
+        <activity android:name=".ui.activities.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

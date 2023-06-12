@@ -4,10 +4,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.content.ClipData;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -39,6 +41,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
@@ -51,6 +54,7 @@ import com.gun0912.tedpermission.TedPermission;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -75,10 +79,10 @@ public class TaskActivity extends AppCompatActivity implements GalleryAdapter.On
     Context origContext;
 
     String title = "Ошибка",
-            idTask = "",
-            type = "current",
-            companyName, userEmail;
-TextView emptyText;
+            taskID = "",
+            companyID,
+            userID;
+    TextView emptyText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,12 +93,11 @@ TextView emptyText;
 
         emptyText = findViewById(R.id.emptyText);
         Intent intent = getIntent();
-        title = intent.getStringExtra("name");
-        idTask = intent.getStringExtra("id");
-        type = intent.getStringExtra("type") == null ? "current" : intent.getStringExtra("type");
-        SharedPreferences preferences = getSharedPreferences("data", MODE_PRIVATE);
-        companyName = preferences.getString("companyName", "");
-        userEmail = preferences.getString("userEmailShort", "");
+        title = intent.getStringExtra("title");
+        taskID = intent.getStringExtra("taskID");
+        userID = intent.getStringExtra("userID");
+        SharedPreferences preferences = getSharedPreferences("user", MODE_PRIVATE);
+        companyID = preferences.getString("companyID", "");
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         if (toolbar != null) {
@@ -102,15 +105,15 @@ TextView emptyText;
             setSupportActionBar(toolbar);
         }
 
-        mStorageRef = FirebaseStorage.getInstance().getReference("uploads/" + idTask);
-        mDatabaseRef = FirebaseDatabase.getInstance().getReference("companies/" + companyName + "/tasks");
+        mStorageRef = FirebaseStorage.getInstance().getReference("uploads/" + taskID);
+        mDatabaseRef = FirebaseDatabase.getInstance().getReference("tasks/" + companyID + "/" + userID + "/" + taskID);
 
         progressBar = findViewById(R.id.progress_circular);
         gvGallery = findViewById(R.id.rev_photo);
         gvGallery.setLayoutManager(new GridLayoutManager(this, 3));
         addPhotoButton = findViewById(R.id.floatingActionButton);
 
-        mDatabaseRef.child(type).child(idTask).child("images").addValueEventListener(new ValueEventListener() {
+        mDatabaseRef.child("images").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mArrayUriAbsolute = new ArrayList<>();
@@ -122,9 +125,9 @@ TextView emptyText;
                 mArrayUri.addAll(mArrayUriAbsolute);
                 mArrayUri.addAll(mArrayLocal);
                 gvGallery.setAdapter(new GalleryAdapter(origContext, mArrayUri, context));
-                progressBar.setVisibility(View.INVISIBLE);
+                progressBar.setVisibility(View.GONE);
                 if (mArrayUri.isEmpty()) {
-                emptyText.setVisibility(View.VISIBLE);
+                    emptyText.setVisibility(View.VISIBLE);
                 } else {
                     emptyText.setVisibility(View.INVISIBLE);
                 }
@@ -138,7 +141,6 @@ TextView emptyText;
         });
 
         addPhotoButton.setOnClickListener(view -> requestPermissions(0));
-
     }
 
     private void requestPermissions(int i) {
@@ -213,7 +215,7 @@ TextView emptyText;
                 mArrayUri.addAll(mArrayLocal);
                 addImagesInRecycler(mArrayUri);
             } else {
-                Toast.makeText(this, "Вы не выбрали ни одной картинки, ошибка", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Вы не выбрали ни одной картинки", Toast.LENGTH_LONG).show();
             }
         } else {
             // show this if no image is selected
@@ -223,7 +225,11 @@ TextView emptyText;
 
     private void addImagesInRecycler(ArrayList<Uri> mArrayUri) {
         GalleryAdapter galleryAdapter = new GalleryAdapter(origContext, mArrayUri, this);
-
+        if (mArrayUri.size() != 0) {
+            emptyText.setVisibility(View.INVISIBLE);
+        } else {
+            emptyText.setVisibility(View.VISIBLE);
+        }
         gvGallery.setAdapter(galleryAdapter);
 
     }
@@ -232,7 +238,7 @@ TextView emptyText;
     public void onImageClick(int position) {
         if (position < mArrayUriAbsolute.size()) {
             if (mArrayUri.get(position) == mArrayUriAbsolute.get(position)) {
-                mDatabaseRef.child(type).child(idTask).child("images").child(String.valueOf(position)).removeValue();
+                mDatabaseRef.child("images").child(String.valueOf(position)).removeValue();
             }
         } else {
             if (mArrayUri.get(position) == mArrayLocal.get(position - mArrayUriAbsolute.size())) {
@@ -253,29 +259,57 @@ TextView emptyText;
     }
 
 
-    // Заглушка, работа с меню
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
         if (id == R.id.menu_task_clear) {
-            // Toast.makeText(getApplicationContext(), "Добавить примечание", Toast.LENGTH_SHORT).show();
-//            startActivity(new Intent(this, SendingActivity.class));
-            mArrayUri.clear();
-            mArrayLocal.clear();
-            for (Uri imageUri : mArrayUriAbsolute) {
-                FirebaseStorage.getInstance().getReferenceFromUrl(String.valueOf(imageUri)).delete();
-            }
-            mArrayUriAbsolute = new ArrayList<>();
-            mDatabaseRef.child(type).child(idTask).child("images").removeValue();
-            addImagesInRecycler(mArrayUri);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            AlertDialog dialog = builder.setTitle("Удалить фотографии")
+                    .setMessage("Вы уверены что хотите удалить все фотографии с этого задания?")
+                    .setPositiveButton("Да", (dialogIn, idIn) -> {
+                        mArrayUri.clear();
+                        mArrayLocal.clear();
+                        for (Uri imageUri : mArrayUriAbsolute) {
+                            FirebaseStorage.getInstance().getReferenceFromUrl(String.valueOf(imageUri)).delete();
+                        }
+                        mArrayUriAbsolute = new ArrayList<>();
+                        mDatabaseRef.child("images").removeValue();
+                        addImagesInRecycler(mArrayUri);
+                        dialogIn.cancel();
+                    }).setNegativeButton("Отмена", (dialogIn, idIn) -> {
+                        dialogIn.cancel();
+                    }).create();
+            dialog.setOnShowListener(arg0 -> {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(this, R.color.primary));
+            });
+            builder.show();
+
         } else if (id == R.id.menu_task_send) {
-            mArrayUriDone.clear();
-            Intent intentSending = new Intent(this, SendingActivity.class);
-            startActivity(intentSending);
-            for (int i = mArrayUriAbsolute.size(); i < mArrayUri.size(); i++) {
-                uploadFiles(mArrayUri.get(i));
-            }
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            AlertDialog dialog = builder.setTitle("Отправить")
+                    .setMessage("Вы уверены что хотите отправить задание?")
+                    .setPositiveButton("Да", (dialogIn, idIn) -> {
+                        mArrayUriDone.clear();
+                        Intent intentSending = new Intent(this, SendingActivity.class);
+                        startActivity(intentSending);
+                        for (int i = mArrayUriAbsolute.size(); i < mArrayUri.size(); i++) {
+                            uploadFiles(mArrayUri.get(i));
+                        }
+                        dialogIn.cancel();
+                    }).setNegativeButton("Отмена", (dialogIn, idIn) -> {
+                        dialogIn.cancel();
+                    }).create();
+            dialog.setOnShowListener(arg0 -> {
+                dialog.getButton(AlertDialog.BUTTON_POSITIVE).setTextColor(ContextCompat.getColor(this, R.color.primary));
+            });
+            builder.show();
+
+        } else if (id == R.id.menu_show_info) {
+            Intent intent = new Intent(this, TaskInfoActivity.class);
+            intent.putExtra("taskID", taskID);
+            intent.putExtra("userID", userID);
+            startActivity(intent);
         }
 
 
@@ -303,22 +337,12 @@ TextView emptyText;
                                 for (int i = 0; i < mArrayUriAbsolute.size(); i++) {
                                     data.add(String.valueOf(mArrayUriAbsolute.get(i)));
                                 }
-                                mDatabaseRef.child(type).child(idTask).child("images").setValue(data);
-                                if (type.equals("current")) {
-                                    mDatabaseRef.child(type).child(idTask).addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot) {
+                                HashMap<String, Object> updates = new HashMap<>();
+                                updates.put("images", data);
+                                updates.put("status", "sent");
+                                mDatabaseRef.updateChildren(updates);
 
-                                            mDatabaseRef.child("done").child(idTask).setValue(dataSnapshot.getValue());
-                                            mDatabaseRef.child(type).child(idTask).removeValue();
-                                        }
 
-                                        @Override
-                                        public void onCancelled(@NonNull DatabaseError databaseError) {
-                                            Toast.makeText(getApplicationContext(), "Что-то пошло не так: " + databaseError.getMessage(), Toast.LENGTH_LONG).show();
-                                        }
-                                    });
-                                }
 
                                 SendingActivity.activity.finish();
                                 Toast.makeText(this, "Успешно отправлено", Toast.LENGTH_LONG).show();

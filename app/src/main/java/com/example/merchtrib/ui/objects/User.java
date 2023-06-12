@@ -2,22 +2,38 @@ package com.example.merchtrib.ui.objects;
 
 public class User {
 
-    public String company;
+    public String companyID;
+    public String email;
     public boolean admin;
 
-    public User() {};
+    public User() {
+    }
 
-    public User(String company, boolean admin) {
-        this.company = company;
+    public User(String email, boolean admin) {
+        this.email = email;
         this.admin = admin;
     }
 
-    public String getCompany() {
-        return company;
+    public User(String companyID, boolean admin, String email) {
+        this.companyID = companyID;
+        this.admin = admin;
+        this.email = email;
     }
 
-    public void setCompany(String company) {
-        this.company = company;
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getCompanyID() {
+        return companyID;
+    }
+
+    public void setCompanyID(String companyID) {
+        this.companyID = companyID;
     }
 
     public boolean isAdmin() {

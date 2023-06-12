@@ -6,11 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".ui.activities.TaskActivity">
 
-    <TextView android:id="@+id/emptyText"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
 
     <include
         android:id="@+id/toolbar"
@@ -20,14 +15,7 @@
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true" />
 
-    <ProgressBar
-        android:id="@+id/progress_circular"
-        style="@style/Widget.AppCompat.ProgressBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:indeterminateTint="@color/primary"
-        />
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rev_photo"
@@ -56,6 +44,21 @@
         app:srcCompat="@drawable/ic_add_photo" />
 
 
+    <ProgressBar
+        android:id="@+id/progress_circular"
+        style="@style/Widget.AppCompat.ProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:indeterminateTint="@color/primary"
+        />
+    <TextView android:id="@+id/emptyText"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Нет фотографий"
+        android:visibility="invisible"/>
 
 
 </RelativeLayout>

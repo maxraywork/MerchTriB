@@ -1,21 +1,11 @@
 package com.example.merchtrib.ui.fragments;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,24 +19,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.merchtrib.R;
-import com.example.merchtrib.ui.activities.AddTaskActivity;
-import com.example.merchtrib.ui.activities.TaskActivity;
 import com.example.merchtrib.ui.adapters.TasksAdapter;
 import com.example.merchtrib.ui.objects.Task;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 public class SendTodayFragment extends Fragment {
@@ -54,10 +35,10 @@ public class SendTodayFragment extends Fragment {
     public ArrayList<Task> TASKS = new ArrayList<Task>();
     private DatabaseReference mDatabase;
     SharedPreferences sharedPreferences;
-    String userEmail, companyName, companyNameOriginal;
+    String userID, companyID;
     boolean isAdmin;
     RecyclerView lv;
-
+    ValueEventListener tasksListener;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -74,23 +55,37 @@ public class SendTodayFragment extends Fragment {
         lv.setLayoutManager(llm);
         TextView emptyText = v.findViewById(R.id.emptyText);
 
-        sharedPreferences = getActivity().getSharedPreferences("data", Context.MODE_PRIVATE);
-        userEmail = sharedPreferences.getString("userEmailShort", "");
-        companyName = sharedPreferences.getString("companyName", "");
+        sharedPreferences = getActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
+        userID = sharedPreferences.getString("userID", "");
+        companyID = sharedPreferences.getString("companyID", "");
         isAdmin = sharedPreferences.getBoolean("isAdmin", false);
-        companyNameOriginal = sharedPreferences.getString("companyNameOriginal", null);
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
         ProgressBar progressBar = v.findViewById(R.id.progress_circular);
-        mDatabase.child("companies/" + companyName + "/tasks/done").addValueEventListener(new ValueEventListener() {
+
+
+        tasksListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 TASKS = new ArrayList<>();
                 // Get Post object and use the values to update the UI
-                for (DataSnapshot dataTask: dataSnapshot.getChildren()) {
-                    TASKS.add(dataTask.getValue(Task.class));
+                for (DataSnapshot dataTask : dataSnapshot.getChildren()) {
+                    if (isAdmin) {
+                        for (DataSnapshot userTasks : dataTask.getChildren()) {
+                            Task currentTask = userTasks.getValue(Task.class);
+                            if (Objects.equals(currentTask != null ? currentTask.getStatus() : null, "sent")) {
+                                currentTask.setUserID(dataTask.getKey());
+                                TASKS.add(currentTask);
+                            }
+                        }
+
+                    } else {
+                        Task currentTask = dataTask.getValue(Task.class);
+                        currentTask.setUserID(userID);
+                        TASKS.add(currentTask);
+                    }
                 }
-                lv.setAdapter(new TasksAdapter(getContext() , TASKS, "done", isAdmin, companyName));
+                lv.setAdapter(new TasksAdapter(getContext(), TASKS, isAdmin, userID, companyID));
                 progressBar.setVisibility(View.INVISIBLE);
                 if (!TASKS.isEmpty()) {
                     emptyText.setVisibility(View.INVISIBLE);
@@ -104,8 +99,13 @@ public class SendTodayFragment extends Fragment {
                 // Getting Post failed, log a message
                 Toast.makeText(getContext(), databaseError.getMessage(), Toast.LENGTH_LONG).show();
             }
-        });
-        lv.setAdapter(new TasksAdapter(getContext() , TASKS, "done", isAdmin, companyName));
+        };
+        if (isAdmin) {
+            mDatabase.child("tasks/" + companyID).addValueEventListener(tasksListener);
+        } else {
+            mDatabase.child("tasks/" + companyID + "/" + userID).orderByChild("status").equalTo("sent").addValueEventListener(tasksListener);
+        }
+        lv.setAdapter(new TasksAdapter(getContext() , TASKS, isAdmin, userID, companyID));
 
 
         Toolbar toolbar = (Toolbar) v.findViewById(R.id.toolbar);
@@ -121,7 +121,15 @@ public class SendTodayFragment extends Fragment {
 
     }
 
-
+    @Override
+    public void onDestroy() {
+        if (isAdmin) {
+            mDatabase.child("tasks/" + companyID).removeEventListener(tasksListener);
+        } else {
+            mDatabase.child("tasks/" + companyID + "/" + userID).orderByChild("status").equalTo("sent").removeEventListener(tasksListener);
+        }
+        super.onDestroy();
+    }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {

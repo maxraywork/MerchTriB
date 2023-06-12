@@ -23,14 +23,12 @@
     <string name="image_description">Описание фото</string>
 
 
-    <string-array name="LoginArray">
-        <item>Лебедев Александр</item>
-        <item>Лучихин Максим</item>
-        <item>Леонтив Валерий</item>
-        <item>Алексеев Максим</item>
-        <item>Магамедов Илья</item>
-    </string-array>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="resetPassword">Забыли пароль?</string>
+    <string name="returnToLogin">Вернуться ко входу</string>
+    <string name="logIn">Войти</string>
+    <string name="resetPasswordMainButton">Восстановить пароль</string>
+    <string name="TitleUsers">Сотрудники</string>
 
 </resources>

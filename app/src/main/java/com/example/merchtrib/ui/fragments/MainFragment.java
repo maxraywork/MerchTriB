@@ -30,6 +30,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.merchtrib.R;
 import com.example.merchtrib.ui.activities.AddTaskActivity;
+import com.example.merchtrib.ui.activities.ErrorActivity;
 import com.example.merchtrib.ui.activities.LoginActivity;
 import com.example.merchtrib.ui.activities.MainActivity;
 import com.example.merchtrib.ui.activities.TaskActivity;
@@ -57,9 +58,10 @@ public class MainFragment extends Fragment {
     public ArrayList<Task> TASKS = new ArrayList<>();
     private DatabaseReference mDatabase;
     SharedPreferences sharedPreferences;
-    String userEmail, companyName, companyNameOriginal;
+    String userID, companyID;
+
+    ValueEventListener eventListener;
     boolean isAdmin;
-    private FirebaseUser user;
     RecyclerView lv;
 
 
@@ -70,11 +72,10 @@ public class MainFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_main, container, false);
 
 //        user = FirebaseAuth.getInstance().getCurrentUser();
-        sharedPreferences = getActivity().getSharedPreferences("data", Context.MODE_PRIVATE);
-        userEmail = sharedPreferences.getString("userEmailShort", "");
-        companyName = sharedPreferences.getString("companyName", "");
+        sharedPreferences = getActivity().getSharedPreferences("user", Context.MODE_PRIVATE);
+        userID = sharedPreferences.getString("userID", "");
+        companyID = sharedPreferences.getString("companyID", "");
         isAdmin = sharedPreferences.getBoolean("isAdmin", false);
-        companyNameOriginal = sharedPreferences.getString("companyNameOriginal", null);
 
         lv = v.findViewById(R.id.list_of_tasks);
         LinearLayoutManager llm = new LinearLayoutManager(this.getContext());
@@ -89,16 +90,30 @@ public class MainFragment extends Fragment {
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
         ProgressBar progressBar = v.findViewById(R.id.progress_circular);
-        mDatabase.child("companies/" + companyName + "/tasks/current").addValueEventListener(new ValueEventListener() {
+
+        eventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 TASKS = new ArrayList<>();
                 // Get Post object and use the values to update the UI
-                for (DataSnapshot dataTask: dataSnapshot.getChildren()) {
-                     TASKS.add(dataTask.getValue(Task.class));
+                for (DataSnapshot dataTask : dataSnapshot.getChildren()) {
+                    if (isAdmin) {
+                        for (DataSnapshot userTasks : dataTask.getChildren()) {
+                                Task currentTask = userTasks.getValue(Task.class);
+                                if (Objects.equals(currentTask != null ? currentTask.getStatus() : null, "created")) {
+                                    currentTask.setUserID(dataTask.getKey());
+                                    TASKS.add(currentTask);
+                                }
+                        }
+
+                    } else {
+                        Task currentTask = dataTask.getValue(Task.class);
+                        currentTask.setUserID(userID);
+                        TASKS.add(currentTask);
+                    }
 
                 }
-                lv.setAdapter(new TasksAdapter(getContext() , TASKS, "current", isAdmin, companyName));
+                lv.setAdapter(new TasksAdapter(getContext(), TASKS, isAdmin, userID, companyID));
                 progressBar.setVisibility(View.INVISIBLE);
                 if (!TASKS.isEmpty()) {
                     emptyText.setVisibility(View.INVISIBLE);
@@ -110,11 +125,15 @@ public class MainFragment extends Fragment {
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 // Getting Post failed, log a message
-                Toast.makeText(getContext(), databaseError.getMessage(), Toast.LENGTH_LONG).show();
+//                Toast.makeText(getContext(), databaseError.getMessage(), Toast.LENGTH_LONG).show();
             }
-        });
-        lv.setAdapter(new TasksAdapter(getContext() , TASKS, "current",  isAdmin, companyName));
-
+        };
+        if (isAdmin) {
+            mDatabase.child("tasks/" + companyID).addValueEventListener(eventListener);
+        } else {
+            mDatabase.child("tasks/" + companyID + "/" + userID).orderByChild("status").equalTo("created").addValueEventListener(eventListener);
+        }
+        lv.setAdapter(new TasksAdapter(getContext(), TASKS, isAdmin, userID, companyID));
 
 
         SimpleDateFormat formatter = new SimpleDateFormat("EEEE dd.MM", Locale.getDefault());
@@ -123,11 +142,11 @@ public class MainFragment extends Fragment {
         setHasOptionsMenu(true);
         AppCompatActivity activity = (AppCompatActivity) getActivity();
         if (toolbar != null) {
-            if (isAdmin && companyNameOriginal != null) {
-                toolbar.setTitle(companyNameOriginal);
-            } else {
-                toolbar.setTitle(date);
-            }
+//            if (isAdmin && companyNameOriginal != null) {
+//                toolbar.setTitle(companyNameOriginal);
+//            } else {
+            toolbar.setTitle(date);
+//            }
             if (activity != null) {
                 activity.setSupportActionBar(toolbar);
             }
@@ -152,16 +171,15 @@ public class MainFragment extends Fragment {
         if (id == R.id.menu_main_add) {
             startActivity(new Intent(this.getActivity(), AddTaskActivity.class));
         } else if (id == R.id.menu_main_logOut) {
+            mDatabase.removeEventListener(eventListener);
+            sharedPreferences.edit().putString("companyID", null).putString("userID", null).putString("email", null).putBoolean("isAdmin", false).apply();
+            startActivity(new Intent(getActivity(), LoginActivity.class));
             FirebaseAuth.getInstance().signOut();
-            sharedPreferences.getAll().clear();
-            startActivity(new Intent(getActivity(), MainActivity.class));
             Objects.requireNonNull(getActivity()).finish();
         }
 
         return super.onOptionsItemSelected(item);
     }
-
-
 
 
     @Override

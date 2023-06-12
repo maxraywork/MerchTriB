@@ -3,7 +3,9 @@ package com.example.merchtrib.ui.objects;
 public class CompanyUser {
     public String email;
 
-    public CompanyUser(){};
+    public CompanyUser() {
+    }
+
     public CompanyUser(String email) {
         this.email = email;
     }

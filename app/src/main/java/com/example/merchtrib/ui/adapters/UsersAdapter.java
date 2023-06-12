@@ -16,7 +16,10 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.merchtrib.R;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.collection.LLRBNode;
 import com.google.firebase.storage.FirebaseStorage;
 
@@ -26,15 +29,15 @@ import java.util.ArrayList;
 public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UsersViewHolder> {
 
     private Context ctx;
-    private ArrayList<String> mData;
+    private ArrayList<String> users;
     private ImageButton delete;
     private TextView name;
-    private String companyName;
+    private String companyID;
 
-    public UsersAdapter(Context ctx, ArrayList<String> data, String companyName) {
+    public UsersAdapter(Context ctx, ArrayList<String> users, String companyID) {
         this.ctx = ctx;
-        this.mData = data;
-        this.companyName = companyName;
+        this.users = users;
+        this.companyID = companyID;
 
     }
 
@@ -49,7 +52,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UsersViewHol
 
     @Override
     public void onBindViewHolder(@NonNull UsersAdapter.UsersViewHolder holder, int position) {
-        String current = mData.get(position);
+        String current = users.get(position);
         name.setText(current);
         delete.setOnClickListener(v -> {
             AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
@@ -57,10 +60,35 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UsersViewHol
                     .setMessage("Вы уверены что хотите удалить этого пользователя?")
                     .setPositiveButton("Да", (dialogg, id) -> {
                         // Закрываем окно
-                        String email = current.replace("@", "").replace(".", "").toLowerCase();
                         FirebaseDatabase mDataBase = FirebaseDatabase.getInstance();
-                        mDataBase.getReference("companies/" + companyName + "/users/" + email).removeValue();
-                        mDataBase.getReference("users/" + email).removeValue();
+                        //If user is in waitList
+                        String shortEmail = current.split(" ")[0].replace("@", "").replace(".", "").toLowerCase();
+                        if (current.split(" ").length == 2) {
+
+                            //If user is user
+                            mDataBase.getReference("companies/" + companyID + "/usersWaitList/" + shortEmail).removeValue();
+                            mDataBase.getReference("usersWaitList/" + shortEmail).removeValue();
+
+                        } else {
+
+                            mDataBase.getReference("companies/" + companyID + "/users").orderByChild("email").equalTo(current).limitToFirst(1).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    if (dataSnapshot.exists()) {
+                                        for (DataSnapshot userSnapshot: dataSnapshot.getChildren()) {
+                                            userSnapshot.getRef().removeValue();
+                                            mDataBase.getReference("users/" + userSnapshot.getKey()).removeValue();
+                                        }
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                }
+                            });
+
+                        }
                         dialogg.cancel();
                     }).setNegativeButton("Отмена", (dialogg, id) -> {
                 dialogg.cancel();
@@ -75,7 +103,7 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UsersViewHol
 
     @Override
     public int getItemCount() {
-        return mData.size();
+        return users.size();
     }
 
 

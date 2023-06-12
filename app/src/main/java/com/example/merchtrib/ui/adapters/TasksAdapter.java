@@ -42,16 +42,16 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
     private TextView name;
     private TextView address;
     private LinearLayout parentLayout;
-    private String type;
     private boolean isAdmin;
-    private String companyName;
+    private String companyID;
+    private String userID;
 
-    public TasksAdapter(Context ctx, ArrayList<Task> task, String type, boolean isAdmin, String companyName) {
+    public TasksAdapter(Context ctx, ArrayList<Task> tasks, boolean isAdmin,String userID , String companyID) {
         this.ctx = ctx;
-        this.mArrayTask = task;
-        this.type = type;
+        this.mArrayTask = tasks;
         this.isAdmin = isAdmin;
-        this.companyName = companyName;
+        this.companyID = companyID;
+        this.userID = userID;
 
     }
 
@@ -67,7 +67,7 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
     @Override
     public void onBindViewHolder(@NonNull TasksAdapter.TaskViewHolder holder, int position) {
         Task current = mArrayTask.get(position);
-        name.setText(current.getName());
+        name.setText(current.getTitle());
         address.setText(current.getAddress());
         if (current.getAddressLink() != null) {
             imageButton.setOnClickListener(view -> {
@@ -82,11 +82,11 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
 
         parentLayout.setOnClickListener(v -> {
             Intent intent = new Intent(ctx, TaskActivity.class);
-            intent.putExtra("type", type);
-            intent.putExtra("id", current.id);
-            intent.putExtra("name", current.name);
-            intent.putExtra("address", current.address);
-            intent.putExtra("addressLink", current.addressLink);
+            intent.putExtra("taskID", current.getTaskID());
+            intent.putExtra("title", current.getTitle());
+            intent.putExtra("address", current.getAddress());
+            intent.putExtra("addressLink", current.getAddressLink());
+            intent.putExtra("userID", current.getUserID());
             ctx.startActivity(intent);
         });
         if (isAdmin) {
@@ -96,8 +96,8 @@ public class TasksAdapter extends RecyclerView.Adapter<TasksAdapter.TaskViewHold
                         .setMessage("Вы уверены что хотите удалить это задание?")
                         .setPositiveButton("Да", (dialog, id) -> {
                             // Закрываем окно
-                            FirebaseDatabase.getInstance().getReference("companies/" + companyName + "/tasks/" + type + "/" + current.id).removeValue();
-                            FirebaseStorage.getInstance().getReference("uploads/" + current.id).delete();
+                            FirebaseDatabase.getInstance().getReference("tasks/" + companyID + "/" + current.getUserID() + "/" + current.getTaskID()).removeValue();
+                            FirebaseStorage.getInstance().getReference("uploads/" + current.getTaskID()).delete();
                             dialog.cancel();
                         }).setNegativeButton("Отмена", (dialog, id) -> {
                             dialog.cancel();
